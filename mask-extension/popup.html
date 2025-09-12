@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>個人情報マスク</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 10px; font-size: 14px; width: 240px; }
+    label { 
+      display: flex; 
+      align-items: center; 
+      gap: 10px; 
+      padding: 8px 10px; 
+      border: 1px solid #ddd; 
+      border-radius: 6px; 
+      background: #fafafa; 
+      cursor: pointer; 
+      user-select: none;
+    }
+    label:hover { background:#f0f0f0; }
+    label input { transform: scale(1.25); }
+    .status { margin-top: 8px; font-size: 12px; color: #555; line-height:1.4; word-break:break-all; }
+  </style>
+</head>
+<body>
+  <form id="maskForm">
+    <label><input type="checkbox" id="Email" /> @ を含む文字列</label>
+    <label><input type="checkbox" id="org" /> org で始まる文字列</label>
+    <label><input type="checkbox" id="Number" /> 6桁以上の数字列</label>
+    <label><input type="checkbox" id="Name" /> ユーザ名/名前っぽいもの</label>
+  </form>
+  <div class="status" id="status"></div>
+  <script src="popup.js"></script>
+</body>
+</html><!-- v1.1 以降 UI 無し。ファイル削除可。 -->
