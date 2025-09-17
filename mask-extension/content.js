@@ -280,6 +280,17 @@
   if(p.isContentEditable) return;
   const role = p.getAttribute && p.getAttribute('role'); if(role && role.toLowerCase()==='textbox') return;
   if(p.tagName==='INPUT' || p.tagName==='TEXTAREA') return;
+  // 追加: 画面崩壊対策でアイコン/装飾要素内テキストはマスクしない
+  const tag = p.tagName;
+  if(tag==='SCRIPT'||tag==='STYLE'||tag==='NOSCRIPT'||tag==='TITLE'||tag==='META') return;
+  // svg / math (アイコン・数式) 内はレイアウト依存のため除外
+  if(p.closest && (p.closest('svg') || p.closest('math'))) return;
+  // aria-hidden アイコン / role=img, presentation など意味を持たない表示は除外
+  const ariaHidden = p.getAttribute && p.getAttribute('aria-hidden');
+  if(ariaHidden === 'true') return;
+  if(role && (role.toLowerCase()==='img' || role.toLowerCase()==='presentation')) return;
+  // フォント名に icon / symbol が含まれる (Material Icons, FluentSystemIcons 等) は除外
+  try { const ff = getComputedStyle(p).fontFamily || ''; if(/icon|symbol/i.test(ff)) return; } catch(_){}
       const txt = n.textContent||''; if(!txt) return;
       if(!quickPossible(txt)) return; // 早期棄却
       const ranges = collectMaskRanges(txt); if(!ranges.length) return;
@@ -326,11 +337,9 @@
 
     function applyFull(){
       if(!settings.at && !settings.org && !settings.number && !settings.name){ unmaskAll(); return; }
-      startVisualBatch();
+      // 画面全体を一時的に visibility:hidden にするバッチ処理はアイコン計測崩壊リスクのため撤廃
       unmaskAll();
-      // 既存 scan は上から順に処理するが、非表示中に行うことでユーザーには一括適用に見える
       scan(document.body);
-      endVisualBatch();
     }
 
     function applyIncremental(){
@@ -506,15 +515,11 @@
       document.documentElement.appendChild(s);
     }
     function startVisualBatch(){
-      if(batching) return; batching = true; ensureBatchStyle();
-      document.documentElement.classList.add('__pii-batch-mask');
+      // 廃止: レイアウト崩壊対策で何もしない (互換のため関数は残す)
+      return;
     }
     function endVisualBatch(){
-      // 次のフレームで表示（scan による DOM 変更完了後）
-      requestAnimationFrame(()=>{
-        document.documentElement.classList.remove('__pii-batch-mask');
-        batching = false;
-      });
+      return; // noop
     }
 
       // ---- Forced Colors Mode (High Contrast) 対応 (Option B) ----
